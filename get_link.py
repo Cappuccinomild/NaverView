@@ -9,6 +9,7 @@ import math
 import multiprocessing
 import sys
 import re
+import sqlite3
 
 def get_1st_html(query):
     #https://search.naver.com/search.naver?where=view&sm=tab_jum&query=%EB%AC%B4%EB%AF%BC%EC%84%B8%EB%8C%80
@@ -101,8 +102,12 @@ def get_link(search_keyword, search_len):
 
     datas['query'] = parse.quote(search_keyword)
 
-    #start 61 -> 91 -> 121
+    #start init
+    #start 61 -> 91 ->  121
     #prank 61 -> 91 -> 121
+    datas['start'] = '61'
+    datas['prank'] = '61'
+
 
     #경북대 좌표
     #lgl_rcode=06230112&fgn_region=&fgn_city=&lgl_lat=35.893749&lgl_long=128.61855
@@ -121,14 +126,12 @@ def get_link(search_keyword, search_len):
 
     for x in tqdm(range(search_len)):
 
-        #페이지를 증가시키며 탐색
-        link_set = []
-        retry_cnt = 0
+        #html 받아오기
         while True:
 
             try:
-                resp = requests.get(naver_news, headers = hdr, params=datas, timeout=10)
-
+                resp = requests.get(view_link, headers = hdr, params=datas, timeout=10)
+                print(resp.url)
             except requests.exceptions.Timeout as timeout:
 
                 print(timeout)
@@ -145,77 +148,23 @@ def get_link(search_keyword, search_len):
                 continue
 
             except:
-                print('unexpect err')
-                #페이지 증가
-                datas['page'] = str(int(datas['page']) + 1)
-                retry_cnt = 0
-                continue
+                #첫 페이지 불러오기에 실패
+                #None 값 리턴
+                print(query ,'첫 페이지 불러오기 실패')
+                print(datas)
+                return None
 
             #html 추출
             if resp.status_code == 200:
-                _html = resp.text
-
-            #페이지 파싱
-            soup = BeautifulSoup(_html, 'lxml')
-
-            #페이지 번호를 위한 파싱
-            page_list = soup.find("div", class_='paging')
-
-            #현재페이지
-            page_now = page_list.find('strong').text
-            if page_now is None:
-                print("null page")
-                time.sleep(10)
-                continue
-            #print(page_now, datas['page'])
-
-            #현재페이지와 탐색페이지가 다르면 종료
-            if page_now != datas['page']:
-                datas['page'] = '1'
+                html = resp.text
                 break
 
-            #현재 페이지에서 기사 링크 목록 추출
-            for link in soup.find("div", id="main_content").find_all("li"):
+        return html
 
-                #메이저 언론사인지 확인
-                media = link.find('span', class_="writing").text
-                if media in newspaper:
-
-                    #링크모음 저장
-                    #저장태그
-                    #100273_media_20200101_headline_2_link
-                    headline = link.find_all('a')[-1].text.replace("\n", '')
-                    #앞쪽 공백 삭제
-                    p = re.compile('[^\s|^\t|^\n].+')
-                    headline = "".join(p.findall(headline))
-
-                    #뒤쪽 공백 삭제
-                    p = re.compile('.+[^\s|^\t|^\n]')
-                    headline = "".join(p.findall(headline))
-                    link_set.append(datas['sid1']+datas['sid2']+"_"+media+"_"+datas['date']+"_"+headline+"_"+datas['page']+"_"+link.find('a')['href'])
-
-
-            #페이지 증가
-            datas['page'] = str(int(datas['page']) + 1)
-
-        #파일명
-        fname = sid1+sid2+"_"+datas['date']+".txt"
-
-
-        f = open(dir+'/'+fname, "w", encoding = 'utf-8')
-        f.write("\n".join(link_set))
-        f.write("\n")
-
-        #종료조건
-        if datas['date'] == date_e:
-            break
-
-        #날짜 감소
-        date_desc = date_desc - datetime.timedelta(days=1)
-
-        datas['date'] = date_to_str(date_desc)
 
 if __name__ == '__main__':
+
+
 
     html = get_1st_html('무민세대')
 
@@ -224,6 +173,7 @@ if __name__ == '__main__':
 
     data_list = soup.find('ul', class_ = 'lst_total _list_base')
 
+    os.makedirs(exist_ok = True)
     for data in data_list.find_all('div', class_ = 'total_area'):
         author = data.find('span', class_ = 'elss etc_dsc_inner').text
         link = data.find('div', class_="total_dsc_wrap").find('a')["href"]
