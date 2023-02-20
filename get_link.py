@@ -317,7 +317,6 @@ def get_blog_link(Pquery, Cquery, date_from, date_to):
     #파싱
     blog_parser(Pquery, Cquery, html)
 
-
 def get_cafe_link(Pquery, Cquery, date_from, date_to):
 
     #1

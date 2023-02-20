@@ -6,6 +6,7 @@ cur = con.cursor()
 
 try:
     cur.execute("CREATE TABLE SearchLink(Psearch TEXT, Csearch TEXT, Author TEXT, Date TEXT, Link TEXT, Crawled INTEAGER);")
+    cur.execute("CREATE TABLE LinkText(Psearch TEXT, Csearch TEXT, Author TEXT, Date TEXT, Link TEXT, Main TEXT);")
 except:
     pass
 '''
