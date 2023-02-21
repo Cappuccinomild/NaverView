@@ -85,7 +85,12 @@ def get_1st_blog(Pquery, Cquery, date_from, date_to):
 
     data_list = soup.find('ul', class_ = 'lst_total')
 
+    if not data_list:
+        con.close()
+        return
+
     for data in data_list.find_all('div', class_ = 'total_area'):
+        
         author = data.find('span', class_ = 'elss etc_dsc_inner').text
         link = data.find('div', class_="total_dsc_wrap").find('a')["href"]
         written_date = data.find('span', class_='sub_time sub_txt').text
@@ -93,6 +98,10 @@ def get_1st_blog(Pquery, Cquery, date_from, date_to):
         #'N일 전' 처리
         if(written_date.find("일 전") == 1):
             written_date = (datetime.datetime.now() - datetime.timedelta(days = int(written_date[:-3]))).strftime("%Y.%m.%d")
+
+        #'N시간 전' 처리
+        if(written_date.find("시간") == 1):
+            written_date = datetime.datetime.now().strftime("%Y.%m.%d")
 
         #DB 구조
         #Psearch TEXT, Csearch TEXT, Author TEXT, Date TEXT, Link TEXT, Crawled INTEAGER
@@ -162,6 +171,10 @@ def get_1st_cafe(Pquery, Cquery, date_from, date_to):
     soup = BeautifulSoup(html, 'lxml')
 
     data_list = soup.find('ul', class_ = 'lst_total')
+    
+    if not data_list:
+        con.close()
+        return
 
     for data in data_list.find_all('div', class_ = 'total_area'):
         author = data.find('span', class_ = 'elss etc_dsc_inner').text
@@ -292,12 +305,16 @@ def get_blog_link(Pquery, Cquery, date_from, date_to):
 
     #전체 크기를 받아오기 위해 한번 크롤링
     html = get_html(view_link, hdr, datas)
-
+    
     soup = BeautifulSoup(html, 'lxml')
 
     #전체 크기 추출
     p = re.compile('"[0-9].+?"')
-    max_size = int(p.findall(soup.find('body').text)[0][1:-1])
+    try:
+        max_size = int(p.findall(soup.find('body').text)[0][1:-1])
+    except ValueError:
+        return
+
 
 
     for x in tqdm(range(int(max_size/30))):
@@ -398,7 +415,10 @@ def get_cafe_link(Pquery, Cquery, date_from, date_to):
 
     #전체 크기 추출
     p = re.compile('"[0-9].+?"')
-    max_size = int(p.findall(soup.find('body').text)[0][1:-1])
+    try:
+        max_size = int(p.findall(soup.find('body').text)[0][1:-1])
+    except ValueError:
+        return
 
 
     for x in tqdm(range(int(max_size/10))):
@@ -423,19 +443,49 @@ if __name__ == '__main__':
 
 
     #input file 읽어오기
+    f = open("input.txt", "r", encoding='utf-8')
 
+    map_val = []
+    query_list = []
+    for query in f.read().split("\n"):
+        
+        #query_list가 비었을때 Pquery 설정
+        if not query_list:
+            Pquery = query
+        
+        #한 쿼리 묶음을 종료
+        if query == "":
+            query_list = []
+            continue
+
+        map_val.append([Pquery, query])
+        query_list.append(query)
         #Psearch 읽어오기
 
         #DB 테이블 생성
         #Psearch    Csearch     Author      Date    Link
         #Csearch 멀티프로세싱으로 크롤링
 
+    today = datetime.datetime.now().strftime("%Y%m%d")
+    
+    start_time = time.time()
+    
+    for val in map_val:
+        print(val)
+        get_1st_blog(val[0], val[1], '20110101', today)
+        get_blog_link(val[0], val[1], '20110101', today)
 
+        get_1st_cafe(val[0], val[1], '20110101', today)
+        get_cafe_link(val[0], val[1], '20110101', today)
+    
 
-    get_1st_blog('덕질메이트', '덕질메이트', '20110101', '20230219')
+    '''
+    get_1st_blog('내시피족', 'ssdfaefadf', '20110101', today)
+    get_blog_link('내시피족', '내시피族', '20110101', today)
 
-    get_blog_link('덕질메이트', '덕질메이트', '20110101', '20230219')
+    get_1st_cafe('내시피족', '내시피族', '20110101', today)
+    get_cafe_link('내시피족', '내시피族', '20110101', today)
+    '''
 
-    get_1st_cafe('덕질메이트', '덕질메이트', '20110101', '20230219')
-
-    get_cafe_link('덕질메이트', '덕질메이트', '20110101', '20230219')
+    
+    print(time.time() - start_time)

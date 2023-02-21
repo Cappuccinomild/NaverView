@@ -15,6 +15,8 @@ LinkText_list = cur.fetchall()
 for x in tqdm(range(len(LinkText_list))):
     row = list(LinkText_list[x])
     dirname = "/".join(row[:2])
+
+    dirname = "/".join([dirname, row[3][:7]])
     #블로그, 카페명 특수문자 제거
     row[2] = re.sub(r"[^\uAC00-\uD7A30-9a-zA-Z]", "", row[2])
     fname = "_".join(row[3:1:-1])
