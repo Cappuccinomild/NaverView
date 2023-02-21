@@ -45,16 +45,13 @@ def get_iframelink(link):
         #html 추출
         if resp.status_code == 200:
             html = resp.text
+        
+            soup = BeautifulSoup(html, 'lxml')
 
-            if(html):
-                soup = BeautifulSoup(html, 'lxml')
+            iframe_link = soup.find('iframe', id = 'mainFrame')['src']
 
-                iframe_link = soup.find('iframe', id = 'mainFrame')['src']
+            return iframe_link
 
-                return iframe_link
-
-            else:
-                return None
 
 
 def get_html(link):
@@ -65,7 +62,7 @@ def get_html(link):
 
         try:
             resp = requests.get(link, headers = hdr, timeout=10)
-            print(resp.url)
+            #print(resp.url)
 
         except requests.exceptions.Timeout as timeout:
 
@@ -138,18 +135,19 @@ def naver_parser(html):
     else:
         return "\n".join(data_list.text)
 
-if __name__ == '__main__':
 
+def blog_text(SearchLink_list):
+    
     con = sqlite3.connect("./link.db")
 
     cur = con.cursor()
 
-    cur.execute("SELECT * FROM SearchLink WHERE Crawled = '0' AND Link LIKE '%blog%'")
+    for x in tqdm(range(len(SearchLink_list))):
 
-    for SearchLink in cur.fetchall():
-        
         #나중에 INSERT 하기 위해 SearchLink를 list로 변환
+        SearchLink = SearchLink_list[x]
         SearchLink = list(SearchLink)
+        
         link = SearchLink[4]
 
         #네이버 블로그일경우 iframe 링크 추출
@@ -162,8 +160,14 @@ if __name__ == '__main__':
             #html 추출 성공
             if html:
 
+                SearchLink.pop()
                 SearchLink.append(naver_parser(html))
-                print(SearchLink[-1])
+                
+                #print(SearchLink[-1])
+                cur.execute("UPDATE SearchLink SET Crawled = ? WHERE Link = ?", (1, SearchLink[4]))
+                cur.execute("INSERT INTO LinkText Values(?, ?, ?, ?, ?, ?)", SearchLink)
+
+                con.commit()
         
         #네이버 블로그가 아닌 경우
         else:
@@ -172,9 +176,27 @@ if __name__ == '__main__':
 
             #html 추출 성공
             if html:
-                
+
+                SearchLink.pop()
                 SearchLink.append(html_parser(html))
-                print(SearchLink[-1])
-                #cur.exeute("UPDATE SearchLink SET Crawled = ? WHERE Link = ?", (1, link))
+
+                #print(SearchLink[-1])
+                cur.execute("UPDATE SearchLink SET Crawled = ? WHERE Link = ?", (1, SearchLink[4]))
+                cur.execute("INSERT INTO LinkText Values(?, ?, ?, ?, ?, ?)", SearchLink)
+
+                con.commit()
+
+
+    con.close()            
+
+
+if __name__ == '__main__':
+
+    con = sqlite3.connect("./link.db")
+
+    cur = con.cursor()
+
+    cur.execute("SELECT * FROM SearchLink WHERE Crawled = '0' AND Link LIKE '%blog%'")
+    blog_text(cur.fetchall())
 
 

@@ -16,9 +16,13 @@ cur.execute("INSERT INTO SearchLink Values(?, ?, ?, ?, ?, ?)", test_data)
 '''
 
 #cur.execute("DROP TABLE SearchLink")
-cur.execute("SELECT * FROM SearchLink ORDER BY Date")
+#cur.execute("DROP TABLE LinkText")
 
 
+#cur.execute("SELECT * FROM SearchLink ORDER BY Date")
+#cur.execute("SELECT Psearch, Csearch, Author, Date, Link FROM LinkText")
+
+cur.execute("SELECT * FROM SearchLink WHERE Crawled = '1' AND Link LIKE '%blog%'")
 
 i = 0
 for row in cur.fetchall():
