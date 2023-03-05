@@ -17,19 +17,27 @@ def walk_file(fname_q):
     for i in range(10):
         fname_q.put([])
 
-def run_process(fname_q, result_q, keyword_list):
+def run_process(N, fname_q, result_q, keyword_list):
 
     df_col = ['file', 'link', 'keyword', '-10', '-9', '-8', '-7', '-6', '-5', '-4', '-3', '-2', '-1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
     
     #result list 초기화
     df_result = pd.DataFrame(columns = df_col)
+
+    #tqdm 선언
+    #pbar = tqdm(desc="[Process "+ str(N) + "]")
+
     while True:
         
         flag = fname_q.get()
-        #print(flag)
+
+        #print(N, flag)
+        #pbar.write("[Process "+ str(N) + "] : " + str(flag))
+
         #파일을 다 읽어서 빈 리스트
         if not flag:
-            return
+            print("return", N ,flag)
+            break
         
         else:
             path, fname = flag
@@ -77,10 +85,13 @@ def run_process(fname_q, result_q, keyword_list):
                     #결과물에 파일위치 입력
                     col.insert(0, "\\".join([path, fname]))
                     
-                    df_result.append(pd.DataFrame(data = [col], columns = df_col))
+                    df_result = pd.concat([df_result, pd.DataFrame(data = [col], columns = df_col)])
+                    
+    print(N, result_q.qsize())
+    result_q.put(df_result)
+    print(N, result_q.qsize())
+    return
 
-
-        result_q.put(df_result)
 
 def read_file(path, fname):
 
@@ -137,22 +148,29 @@ if __name__ == "__main__":
     start = time.time()
 
     fname_q = Queue()
-    result_q = Queue()
-    p = Process(target=walk_file, args=(fname_q,))
-    p.start()
+    result_q = Queue() 
 
     process_list = []
+    p = Process(target=walk_file, args=(fname_q,))
+    p.start()
+    process_list.append(p)
+
     for N in range(0, 10):
-        process_list.append(Process(target=run_process, args=(fname_q, result_q, keyword_list,)))
-        process_list[N].start()
+        process = Process(target=run_process, args=(N, fname_q, result_q, keyword_list,))
+        process.start()
+        process_list.append(process)
 
-    p.join()
-    for p in process_list:
-        p.join()
+    print("join_end")
+    for process in process_list:
+        print(process)
+        process.join()
+    
 
+    print("print result")
     while not result_q.empty():
         print(result_q.get())
 
+    
     '''
     for keyword in keyword_list:
 
