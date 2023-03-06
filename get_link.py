@@ -67,7 +67,7 @@ def get_1st_blog(Pquery, Cquery, date_from, date_to):
 
     #검색어와 날짜 입력
     #datas['query'] = parse.quote(query)
-    datas['query'] = Cquery
+    datas['query'] = '"' + Cquery + '"'
     datas['nso'] = "so:dd,p:from" + date_from + "to" + date_to + ",a:all"
 
     #html 초기화
@@ -102,7 +102,17 @@ def get_1st_blog(Pquery, Cquery, date_from, date_to):
         #'N시간 전' 처리
         if(written_date.find("시간") == 1):
             written_date = datetime.datetime.now().strftime("%Y.%m.%d")
+        
+        #'N분 전' 처리
+        if(written_date.find("분 전") == 1):
+            written_date = datetime.datetime.now().strftime("%Y.%m.%d")
 
+        #'어제' 처리
+        if(written_date.find("어제") == 1):
+            written_date = datetime.datetime.now() - datetime.timedelta(days = 1)
+
+        #. 제거
+        written_date = written_date.replace(".", '')
         #DB 구조
         #Psearch TEXT, Csearch TEXT, Author TEXT, Date TEXT, Link TEXT, Crawled INTEAGER
 
@@ -238,6 +248,20 @@ def blog_parser(Pquery, Cquery, html):
         if(written_date.find("일 전") == 1):
             written_date = (datetime.datetime.now() - datetime.timedelta(days = int(written_date[:-3]))).strftime("%Y.%m.%d")
 
+        #'N시간 전' 처리
+        if(written_date.find("시간") == 1):
+            written_date = datetime.datetime.now().strftime("%Y.%m.%d")
+        
+        #'N분 전' 처리
+        if(written_date.find("분 전") == 1):
+            written_date = datetime.datetime.now().strftime("%Y.%m.%d")
+
+        #'어제' 처리
+        if(written_date.find("어제") == 1):
+            written_date = datetime.datetime.now() - datetime.timedelta(days = 1)
+
+        #. 제거
+        written_date = written_date.replace(".", '')
         #DB 구조
         #Psearch TEXT, Csearch TEXT, Author TEXT, Date TEXT, Link TEXT, Crawled INTEAGER
 
@@ -289,8 +313,8 @@ def get_blog_link(Pquery, Cquery, date_from, date_to):
     #검색어 입력
     #datas['query'] = parse.quote(Cquery)
     #datas['nx_search_query'] = parse.quote(Cquery)
-    datas['query'] = Cquery
-    datas['nx_search_query'] = Cquery
+    datas['query'] = '"' + Cquery + '"'
+    datas['nx_search_query'] = '"' + Cquery + '"'
 
     #날짜 입력
     #so%3Add%2Cp%3Afrom20230219to20110101

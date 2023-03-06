@@ -305,10 +305,10 @@ if __name__ == '__main__':
     con = sqlite3.connect("./link.db")
 
     cur = con.cursor()
-    '''
+
     cur.execute("SELECT * FROM SearchLink WHERE Crawled = '0' AND Link LIKE '%blog%'")
     blog_text(cur.fetchall())
-
+    '''
     cur.execute("SELECT * FROM SearchLink WHERE Crawled = '0' AND Link LIKE '%cafe%'")
     cafe_text(cur.fetchall())
 
@@ -316,8 +316,8 @@ if __name__ == '__main__':
     #last run
     #100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 7905/7905 [1:13:07<00:00,  1.80it/s] 
 
-    print(get_html("https://cafe.naver.com/ArticleRead.nhn?articleid=1474800&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImNob2djYSIsImFydGljbGVJZCI6MTQ3NDgwMCwiaXNzdWVkQXQiOjE2NzY5ODA5ODA5MzR9.3XqXJMIQmZStF4bbbrwEuXvX2dOuSR0DVft72PpMBQE&clubid=21231131"))
-
+    #print(get_html("https://cafe.naver.com/ArticleRead.nhn?articleid=1474800&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImNob2djYSIsImFydGljbGVJZCI6MTQ3NDgwMCwiaXNzdWVkQXQiOjE2NzY5ODA5ODA5MzR9.3XqXJMIQmZStF4bbbrwEuXvX2dOuSR0DVft72PpMBQE&clubid=21231131"))
+    con.commit()
     '''
     $("cafe_main").src = "//cafe.naver.com/ArticleRead.nhn?articleid=1474800&art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6ImNob2djYSIsImFydGljbGVJZCI6MTQ3NDgwMCwiaXNzdWVkQXQiOjE2NzY5ODA5ODA5MzR9.3XqXJMIQmZStF4bbbrwEuXvX2dOuSR0DVft72PpMBQE&clubid=21231131";
     '''					
