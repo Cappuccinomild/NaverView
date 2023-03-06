@@ -24,19 +24,13 @@ def run_process(N, fname_q, result_q, keyword_list):
     #result list 초기화
     df_result = pd.DataFrame(columns = df_col)
 
-    #tqdm 선언
-    #pbar = tqdm(desc="[Process "+ str(N) + "]")
-
     while True:
         
         flag = fname_q.get()
 
-        #print(N, flag)
-        #pbar.write("[Process "+ str(N) + "] : " + str(flag))
-
         #파일을 다 읽어서 빈 리스트
         if not flag:
-            print("return", N ,flag)
+            #print("return", N ,flag)
             break
         
         else:
@@ -86,11 +80,10 @@ def run_process(N, fname_q, result_q, keyword_list):
                     col.insert(0, "\\".join([path, fname]))
                     
                     df_result = pd.concat([df_result, pd.DataFrame(data = [col], columns = df_col)])
-                    
-    print(N, result_q.qsize())
-    result_q.put(df_result)
-    print(N, result_q.qsize())
-    return
+    
+    
+    result_q.put([df_result])
+    
 
 
 def read_file(path, fname):
@@ -148,7 +141,7 @@ if __name__ == "__main__":
     start = time.time()
 
     fname_q = Queue()
-    result_q = Queue() 
+    result_q = Queue(20) 
 
     process_list = []
     p = Process(target=walk_file, args=(fname_q,))
@@ -160,11 +153,10 @@ if __name__ == "__main__":
         process.start()
         process_list.append(process)
 
-    print("join_end")
+    print("join_start")
     for process in process_list:
-        print(process)
         process.join()
-    
+        print(process)
 
     print("print result")
     while not result_q.empty():
@@ -243,3 +235,4 @@ if __name__ == "__main__":
         df_result.to_csv(keyword + ".csv", encoding='utf-8-sig')
 
         '''
+    
