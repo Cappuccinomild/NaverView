@@ -467,7 +467,7 @@ if __name__ == '__main__':
 
 
     #input file 읽어오기
-    f = open("input.txt", "r", encoding='utf-8')
+    f = open("input.txt", "r", encoding='utf-8-sig')
 
     map_val = []
     query_list = []
@@ -499,17 +499,8 @@ if __name__ == '__main__':
         get_1st_blog(val[0], val[1], '20110101', today)
         get_blog_link(val[0], val[1], '20110101', today)
 
-        get_1st_cafe(val[0], val[1], '20110101', today)
-        get_cafe_link(val[0], val[1], '20110101', today)
+        #get_1st_cafe(val[0], val[1], '20110101', today)
+        #get_cafe_link(val[0], val[1], '20110101', today)
     
 
-    '''
-    get_1st_blog('내시피족', 'ssdfaefadf', '20110101', today)
-    get_blog_link('내시피족', '내시피族', '20110101', today)
-
-    get_1st_cafe('내시피족', '내시피族', '20110101', today)
-    get_cafe_link('내시피족', '내시피族', '20110101', today)
-    '''
-
-    
     print(time.time() - start_time)

@@ -55,13 +55,11 @@ def run_process(N, fname_q, keyword_list):
                     
                 df_result = pd.concat([df_result, pd.DataFrame(data = [col], columns = df_col)])
     
-    df_result.to_csv('./Statistics/Temp/' + "temp_" + str(N) + ".csv", encoding='utf-8-sig')
+    df_result.to_csv('./Statistics/Temp/' + "temp_" + str(N) + ".csv", encoding='utf-8-sig', index = False)
     
     
 def merge(keyword_list):
 
-    col_name = ['file', 'link', 'Pkeyword', 'keyword', 'Date']
-    
     fname_list = os.listdir("Statistics/Temp")
     first_fname = "Statistics/Temp/" + fname_list.pop()
     df_result = pd.read_csv(first_fname, encoding = "utf-8")
@@ -124,4 +122,4 @@ if __name__ == "__main__":
         process.join()
         #print(process)
 
-    merge(map_val).to_csv("Statistics/total.csv", encoding='utf-8-sig')
+    merge(map_val).to_csv("Statistics/total.csv", encoding='utf-8-sig', index = False)

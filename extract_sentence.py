@@ -81,7 +81,7 @@ def run_process(N, fname_q, keyword_list):
                     
                     df_result = pd.concat([df_result, pd.DataFrame(data = [col], columns = df_col)])
     
-    df_result.to_csv('./KeywordResult/Temp/' + "temp_" + str(N) + ".csv", encoding='utf-8-sig')
+    df_result.to_csv('./KeywordResult/Temp/' + "temp_" + str(N) + ".csv", encoding='utf-8-sig', index = False)
     
     
 def merge(keyword_list, col_cnt):
@@ -109,7 +109,7 @@ def merge(keyword_list, col_cnt):
         dirname = "./KeywordResult/" + Pkeyword + "/"
         os.makedirs(dirname, exist_ok=True)
         temp = df_result[df_result['keyword'] == keyword]
-        temp[col_name].to_csv(dirname + keyword + ".csv", encoding='utf-8-sig')
+        temp[col_name].to_csv(dirname + keyword + ".csv", encoding='utf-8-sig', index = False)
 
 
 def read_file(path, fname):
