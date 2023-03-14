@@ -115,8 +115,11 @@ def get_html(link):
 
             print(cut)
             print(link)
-            #연결 끊김 발생시 15분 대기
-            time.sleep(900)
+            if cnt > 0:
+                return ''
+            #연결 끊김 발생시 1분 대기
+            time.sleep(60)
+            cnt += 1
             continue
 
         except:
@@ -306,7 +309,7 @@ if __name__ == '__main__':
 
     cur = con.cursor()
 
-    cur.execute("SELECT * FROM SearchLink WHERE Crawled = '0' AND Link LIKE '%blog%'")
+    cur.execute("SELECT * FROM SearchLink WHERE Crawled = '0'")
     blog_text(cur.fetchall())
     '''
     cur.execute("SELECT * FROM SearchLink WHERE Crawled = '0' AND Link LIKE '%cafe%'")

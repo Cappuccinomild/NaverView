@@ -96,20 +96,20 @@ def get_1st_blog(Pquery, Cquery, date_from, date_to):
         written_date = data.find('span', class_='sub_time sub_txt').text
 
         #'N일 전' 처리
-        if(written_date.find("일 전") == 1):
+        if(written_date.find("일 전") != -1):
             written_date = (datetime.datetime.now() - datetime.timedelta(days = int(written_date[:-3]))).strftime("%Y.%m.%d")
 
         #'N시간 전' 처리
-        if(written_date.find("시간") == 1):
+        if(written_date.find("시간") != -1):
             written_date = datetime.datetime.now().strftime("%Y.%m.%d")
         
         #'N분 전' 처리
-        if(written_date.find("분 전") == 1):
+        if(written_date.find("분 전") != -1):
             written_date = datetime.datetime.now().strftime("%Y.%m.%d")
 
         #'어제' 처리
-        if(written_date.find("어제") == 1):
-            written_date = datetime.datetime.now() - datetime.timedelta(days = 1)
+        if(written_date.find("어제") != -1):
+            written_date = datetime.datetime.now().strftime("%Y.%m.%d")
 
         #. 제거
         written_date = written_date.replace(".", '')
@@ -269,7 +269,12 @@ def blog_parser(Pquery, Cquery, html):
         cur.execute("SELECT * FROM SearchLink WHERE Link = '" + link +"'")
         if(len(cur.fetchall()) == 0):
             db_input = [Pquery, Cquery, author, written_date, link, 0]
-            cur.execute("INSERT INTO SearchLink Values(?, ?, ?, ?, ?, ?)", db_input)
+            try:
+                cur.execute("INSERT INTO SearchLink Values(?, ?, ?, ?, ?, ?)", db_input)
+            except:
+                print("DB 입력오류")
+                time.sleep(1)
+                cur.execute("INSERT INTO SearchLink Values(?, ?, ?, ?, ?, ?)", db_input)
 
         #print(written_date, author, link)
 

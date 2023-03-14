@@ -19,7 +19,7 @@ def walk_file(fname_q):
 
 def run_process(N, fname_q, keyword_list):
 
-    df_col = ['file', 'link', 'Pkeyword', 'keyword', 'Date']
+    df_col = ['file', 'path', 'Pkeyword', 'keyword', 'Date']
     
     #result list 초기화
     df_result = pd.DataFrame(columns = df_col)
@@ -49,7 +49,7 @@ def run_process(N, fname_q, keyword_list):
             #키워드를 탐색한 경우
             if keyword in text:
                 
-                date = fname.split("_")[0]
+                date = fname.split("_")[0][:-2]
 
                 col = [fname, path, Pkeyword, keyword, date]
                     
@@ -82,6 +82,8 @@ def read_file(path, fname):
 
     return text
 
+def transpose(matrix):
+    return [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
 
 if __name__ == "__main__":
 
@@ -122,4 +124,99 @@ if __name__ == "__main__":
         process.join()
         #print(process)
 
-    merge(map_val).to_csv("Statistics/total.csv", encoding='utf-8-sig', index = False)
+    #merge(map_val).to_csv("Statistics/total.csv", encoding='utf-8-sig', index = False)
+    
+    df_total = merge(map_val)
+    df_date = list(df_total['Date'].unique())
+    df_date.sort()
+    
+    #Dataframe col
+    df_col = ['Pkeyword', 'keyword', 'Total']
+    df_col = df_col + df_date
+
+    df_result = pd.DataFrame(columns = df_col)
+
+    prev_Pkeyword, prev_Ckeyword = map_val[0]
+    pkey_list = [0 for i in range(len(df_date))]
+    pkey_list.insert(0, 0)
+    pkey_list.insert(0, '')
+
+    
+    for Pkeyword, Ckeyword in map_val:
+        #[x+y for x,y in zip(list1, list2)]
+        #P키워드별로 Dataframe 추출
+        #df_temp = df_total[(df_total['Pkeyword'] == Pkeyword)]
+        
+        #추출시 Pkeyword 로 Ckeyword를 모음
+        if Pkeyword == prev_Pkeyword:
+
+            #이형태별 통계
+            df_temp = df_total[(df_total['Pkeyword'] == Pkeyword) & (df_total['keyword'] == Ckeyword)]
+
+            keyword_col = []
+            for date in df_date:    
+                cnt_list = df_temp['Date'].loc[df_temp['Date'] == date].count()
+                keyword_col.append(cnt_list)
+            
+            ckey_sum = sum(keyword_col)
+            df_list = [Ckeyword + "(" + str(ckey_sum) + ") ", ckey_sum] + keyword_col
+            pkey_list = [x+y for x,y in zip(pkey_list, df_list)]
+        
+        else:
+            
+            pkey_list.insert(0, prev_Pkeyword)
+            df_result = pd.concat([df_result, pd.DataFrame(data = [pkey_list], columns = df_col)])
+            
+            pkey_list = [0 for i in range(len(df_date))]
+            pkey_list.insert(0, 0)
+            pkey_list.insert(0, '')
+
+            #이형태별 통계
+            df_temp = df_total[(df_total['Pkeyword'] == Pkeyword) & (df_total['keyword'] == Ckeyword)]
+
+            keyword_col = []
+            for date in df_date:    
+                cnt_list = df_temp['Date'].loc[df_temp['Date'] == date].count()
+                keyword_col.append(cnt_list)
+            
+            #ckey 합계를 더해서 pkey_list에 저장
+            ckey_sum = sum(keyword_col)
+            df_list = [Ckeyword + "(" + str(ckey_sum) + ") ", ckey_sum] + keyword_col
+            pkey_list = [x+y for x,y in zip(pkey_list, df_list)]
+           
+        prev_Pkeyword = Pkeyword
+        prev_Ckeyword = Ckeyword
+
+
+    pkey_list.insert(0, prev_Pkeyword)
+    df_result = pd.concat([df_result, pd.DataFrame(data = [pkey_list], columns = df_col)])
+    
+    #1차 output
+    df_result.to_csv("Statistics/month.csv", encoding='utf-8-sig', index = False)
+
+    #연도별로 모으기
+    years = set(str(int(col/100)) for col in df_date)
+    years = list(years)
+    years.sort()
+    
+    yearly_sum = []
+
+    for year in years:
+        columns = [col for col in df_result.columns if str(col).startswith(year)]
+ 
+        yearly_sum.append([sum(year_list) for year_list in df_result[columns].values.tolist()])
+
+    yearly_col = ['Pkeyword', 'keyword', 'Total'] + years
+    
+    df_yearly = pd.DataFrame(columns = yearly_col)
+    
+    pkey_list = df_result[['Pkeyword', 'keyword', 'Total']].values.tolist()
+    df_yearly_col = transpose(yearly_sum)
+
+    for i in range(len(pkey_list)):
+        pkey_list[i] = pkey_list[i] + df_yearly_col[i]
+
+    df_yearly = pd.DataFrame(data = pkey_list, columns = yearly_col)
+            
+    df_yearly.to_csv("Statistics/year.csv", encoding='utf-8-sig', index = False)
+ 

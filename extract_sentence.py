@@ -6,6 +6,7 @@ import os
 import sys
 from tqdm import tqdm
 import time
+import datetime
 
 def walk_file(fname_q):
 
@@ -109,7 +110,7 @@ def merge(keyword_list, col_cnt):
         dirname = "./KeywordResult/" + Pkeyword + "/"
         os.makedirs(dirname, exist_ok=True)
         temp = df_result[df_result['keyword'] == keyword]
-        temp[col_name].to_csv(dirname + keyword + ".csv", encoding='utf-8-sig', index = False)
+        temp[col_name].to_csv(dirname + keyword + str(time.time()).split(".")[-1][-4:]+ ".csv", encoding='utf-8-sig', index = False)
 
 
 def read_file(path, fname):
