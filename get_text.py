@@ -107,18 +107,21 @@ def get_html(link):
         except requests.exceptions.Timeout as timeout:
 
             print(timeout)
-            print(link)
+            print(link, cnt)
+            if cnt > 0:
+                return ''
             time.sleep(10)
+            cnt += 1
             continue
 
         except requests.exceptions.ConnectionError as cut:
 
             print(cut)
-            print(link)
+            print(link, cnt)
             if cnt > 0:
                 return ''
-            #연결 끊김 발생시 1분 대기
-            time.sleep(60)
+            #연결 끊김 발생시 15분 대기
+            time.sleep(900)
             cnt += 1
             continue
 
@@ -126,7 +129,7 @@ def get_html(link):
             #첫 페이지 불러오기에 실패
             #None 값 리턴
             print(link ,'첫 페이지 불러오기 실패')
-            return None
+            return ''
 
         #html 추출
         if resp.status_code == 200:
@@ -134,11 +137,11 @@ def get_html(link):
             return html
 
         #404 코드와 100회 이상 재시도일 경우 '' 리턴
-        elif resp.status_code == 404 and cnt > 20:
+        if resp.status_code == 404:
             return ''
 
         #30회 재시도
-        elif cnt > 30:
+        if cnt > 10:
             return ''
 
         cnt += 1
@@ -228,6 +231,11 @@ def blog_text(SearchLink_list):
                 cur.execute("UPDATE SearchLink SET Crawled = ? WHERE Link = ?", (1, SearchLink[4]))
                 cur.execute("INSERT INTO LinkText Values(?, ?, ?, ?, ?, ?)", SearchLink)
 
+                con.commit()
+
+            #실패한 경우 -1 입력
+            else:
+                cur.execute("UPDATE SearchLink SET Crawled = ? WHERE Link = ?", (-1, SearchLink[4]))
                 con.commit()
         
         #네이버 블로그가 아닌 경우

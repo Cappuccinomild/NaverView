@@ -62,6 +62,7 @@ def get_1st_blog(Pquery, Cquery, date_from, date_to):
         'query':'',
         'nso_open':'1',
         'nso':'',
+        'qvt':'0'
 
     }
 
@@ -312,7 +313,8 @@ def get_blog_link(Pquery, Cquery, date_from, date_to):
         'dkey':'0',
         'source_query':'',
         'nx_search_query':'',
-        'spq':'0'
+        'spq':'0',
+        'qvt':'0'
     }
 
     #검색어 입력
