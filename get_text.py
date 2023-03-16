@@ -15,7 +15,14 @@ def blog_iframelink(link):
     #블로그 링크내의 iframe 링크 추출
     hdr = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'}
 
+    cnt = 0
+
     while True:
+
+        if cnt > 10:
+            print(link)
+            print("null page" + str(resp.status_code))
+            return ''
 
         try:
             #0초에서 2초 사이의 랜덤한 대기시간
@@ -110,6 +117,11 @@ def get_html(link):
     hdr = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'}
     cnt = 0
     while True:
+        
+        if cnt > 10:
+                print(link)
+                print("null page" + str(resp.status_code))
+                return ''
 
         try:
             #0초에서 2초 사이의 랜덤한 대기시간
