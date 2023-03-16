@@ -340,7 +340,7 @@ def walk_db(SearchLink_Q):
 
     cur.execute("SELECT * FROM SearchLink WHERE Crawled = '0'")
 
-    for line in cur.fetchall():
+    for line in tqdm(cur.fetchall()):
         SearchLink_Q.put(line)
 
     #프로세스 종료를 위해 빈 리스트 삽입
