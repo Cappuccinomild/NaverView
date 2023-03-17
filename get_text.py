@@ -20,8 +20,7 @@ def blog_iframelink(link):
     while True:
 
         if cnt > 10:
-            print(link)
-            print("null page" + str(resp.status_code))
+            print("null page", link)
             return ''
 
         try:
@@ -119,8 +118,7 @@ def get_html(link):
     while True:
         
         if cnt > 10:
-                print(link)
-                print("null page" + str(resp.status_code))
+                print("null page", link)
                 return ''
 
         try:
@@ -200,6 +198,9 @@ def blog_parser(html):
 
     data_list = soup.find('div', id = 'postListBody')
 
+    if not data_list:
+        return ""
+    
     main_text = []
     for data in data_list.find_all('p'):
 
