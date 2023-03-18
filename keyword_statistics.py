@@ -129,8 +129,6 @@ if __name__ == "__main__":
     df_total = merge(map_val)
     df_date = list(df_total['Date'].unique())
     df_date.sort()
-    
-    print(df_date)
 
     #Dataframe col
     df_col = ['Pkeyword', 'keyword', 'Total']
