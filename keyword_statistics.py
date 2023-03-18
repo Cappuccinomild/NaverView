@@ -130,6 +130,8 @@ if __name__ == "__main__":
     df_date = list(df_total['Date'].unique())
     df_date.sort()
     
+    print(df_date)
+
     #Dataframe col
     df_col = ['Pkeyword', 'keyword', 'Total']
     df_col = df_col + df_date
@@ -194,9 +196,16 @@ if __name__ == "__main__":
     #1차 output
     df_result.to_csv("Statistics/month.csv", encoding='utf-8-sig', index = False)
 
-    #연도별로 모으기
-    years = set(str(int(col/100)) for col in df_date)
-    years = list(years)
+    #연도별로 모으기    
+    years = []
+    for col in df_date:
+        try:
+            year = str(int(col/100))
+            if year not in years:
+                years.append(year)
+        except:
+            continue
+    
     years.sort()
     
     yearly_sum = []

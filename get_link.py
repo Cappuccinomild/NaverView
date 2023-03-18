@@ -97,8 +97,8 @@ def get_1st_blog(Pquery, Cquery, date_from, date_to):
         written_date = data.find('span', class_='sub_time sub_txt').text
 
         #'N일 전' 처리
-        if(written_date.find("일 전") != -1):
-            written_date = (datetime.datetime.now() - datetime.timedelta(days = int(written_date[:-3]))).strftime("%Y.%m.%d")
+        if(written_date.find("일") != -1):
+            written_date = (datetime.datetime.now() - datetime.timedelta(days = int(re.sub(r'[^0-9]', '', written_date)))).strftime("%Y.%m.%d")
 
         #'N시간 전' 처리
         if(written_date.find("시간") != -1):
@@ -110,7 +110,7 @@ def get_1st_blog(Pquery, Cquery, date_from, date_to):
 
         #'어제' 처리
         if(written_date.find("어제") != -1):
-            written_date = datetime.datetime.now().strftime("%Y.%m.%d")
+            written_date = (datetime.datetime.now() - datetime.timedelta(days = 1)).strftime("%Y.%m.%d")
 
         #. 제거
         written_date = written_date.replace(".", '')
@@ -246,20 +246,20 @@ def blog_parser(Pquery, Cquery, html):
         # --author = data[1]
 
         #'N일 전' 처리
-        if(written_date.find("일 전") == 1):
-            written_date = (datetime.datetime.now() - datetime.timedelta(days = int(written_date[:-3]))).strftime("%Y.%m.%d")
+        if(written_date.find("일") != -1):
+            written_date = (datetime.datetime.now() - datetime.timedelta(days = int(re.sub(r'[^0-9]', '', written_date)))).strftime("%Y.%m.%d")
 
         #'N시간 전' 처리
-        if(written_date.find("시간") == 1):
+        if(written_date.find("시간") != -1):
             written_date = datetime.datetime.now().strftime("%Y.%m.%d")
         
         #'N분 전' 처리
-        if(written_date.find("분 전") == 1):
+        if(written_date.find("분 전") != -1):
             written_date = datetime.datetime.now().strftime("%Y.%m.%d")
 
         #'어제' 처리
-        if(written_date.find("어제") == 1):
-            written_date = datetime.datetime.now() - datetime.timedelta(days = 1)
+        if(written_date.find("어제") != -1):
+            written_date = (datetime.datetime.now() - datetime.timedelta(days = 1)).strftime("%Y.%m.%d")
 
         #. 제거
         written_date = written_date.replace(".", '')
@@ -503,8 +503,8 @@ if __name__ == '__main__':
     
     for val in map_val:
         print(val)
-        get_1st_blog(val[0], val[1], '20110101', today)
-        get_blog_link(val[0], val[1], '20110101', today)
+        get_1st_blog(val[0], val[1], sys.argv[1], sys.argv[2])
+        get_blog_link(val[0], val[1], sys.argv[1], sys.argv[2])
 
         #get_1st_cafe(val[0], val[1], '20110101', today)
         #get_cafe_link(val[0], val[1], '20110101', today)
